@@ -1,20 +1,24 @@
-
-import { useState } from 'react';
+import { useState } from "react";
 
 export default function PromptGenerator() {
   const [form, setForm] = useState({
-    title: '',
-    subject: '',
-    dialogue: '',
-    visuals: '',
-    camera: '',
-    mood: '',
-    lighting: '',
-    monitor: '',
-    audio: '',
-    transition: ''
+    title: "",
+    subject: "",
+    dialogue: "",
+    mainCharacter: "",
+    background: "",
+    visuals: "",
+    camera: "",
+    mood: "",
+    lighting: "",
+    monitor: "",
+    audio: "",
+    voiceLanguage: "",
+    voiceStyle: "",
+    transition: ""
   });
-  const [output, setOutput] = useState('');
+
+  const [output, setOutput] = useState("");
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -30,7 +34,13 @@ ${form.subject}
 **[DIALOGUE]:**
 ${form.dialogue}
 
-**[VISUALS]:**
+**[CHARACTER DETAILS]:**
+${form.mainCharacter}
+
+**[BACKGROUND SETTING]:**
+${form.background}
+
+**[VISUAL STYLE]:**
 ${form.visuals}
 
 **[CAMERA & MOVEMENT]:**
@@ -45,27 +55,48 @@ ${form.lighting}
 **[MONITOR DISPLAY]:**
 ${form.monitor}
 
-**[AUDIO & BACKGROUND FX]:**
+**[AUDIO BACKGROUND]:**
 ${form.audio}
 
-**[TRANSITION]:**
+**[VOICE LANGUAGE]:**
+${form.voiceLanguage}
+
+**[VOICE STYLE]:**
+${form.voiceStyle}
+
+**[TRANSITION EFFECT]:**
 ${form.transition}
     `;
     setOutput(prompt.trim());
   };
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(output);
+    alert("Prompt copied to clipboard!");
+  };
+
+  const exportToTxt = () => {
+    const blob = new Blob([output], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "veo3_prompt.txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">🎬 VEO 3 Prompt Generator</h1>
+    <div className="max-w-4xl mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {Object.keys(form).map((key) => (
+        {Object.entries(form).map(([key, val]) => (
           <div key={key}>
-            <label className="block font-semibold mb-1">{key}</label>
+            <label className="block font-semibold mb-1 capitalize">{key.replace(/([A-Z])/g, " $1")}</label>
             <textarea
               name={key}
-              value={form[key]}
+              value={val}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded text-sm text-gray-800"
               rows={3}
             />
           </div>
@@ -73,14 +104,18 @@ ${form.transition}
       </div>
       <button
         onClick={generatePrompt}
-        className="mt-6 px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        className="mt-6 px-6 py-2 bg-orange-600 text-white rounded hover:bg-orange-700"
       >
-        Generate Prompt
+        🎬 Generate Prompt
       </button>
+
       {output && (
         <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">📝 Generated Prompt</h2>
-          <pre className="bg-gray-100 p-4 rounded whitespace-pre-wrap">{output}</pre>
+          <div className="flex gap-2 mb-2">
+            <button onClick={copyToClipboard} className="px-4 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600">📋 Copy</button>
+            <button onClick={exportToTxt} className="px-4 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700">💾 Export .txt</button>
+          </div>
+          <pre className="bg-white dark:bg-gray-800 text-sm p-4 rounded whitespace-pre-wrap border">{output}</pre>
         </div>
       )}
     </div>
